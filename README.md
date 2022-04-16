@@ -2,11 +2,12 @@
 
 # SkyrimModAlternatives
 This is a project that aims to put together the Skyrim Mod Community and creating efforts to: 
+```
 1- Create a free and explorable database of existing mods
 2- Create a free and community-driven alternative to download them
 3- Preserve mods while avoiding takedowns or just dissapearing with the pass of time
 4- Decentralized system, all this code can run in any computer and anyone can use this software, it's opensource and based on the webtorrent project. 
-
+```
 
 # Seed mods
 Seeding mods using seed.js. 
@@ -58,10 +59,12 @@ This file contains the following information that uniquely identifies a mod:
 }
 ```
 This information probes useful to: 
-1- Know the origin of the mod
-2- Identify the mod
-3- Create web extensions that allow us to download from an alternative location when looking for mods on a mod website.
 
+```
+1 - Know the origin of the mod
+2 - Identify the mod
+3 - Create web extensions that allow us to download from an alternative location when looking for mods on a mod website.
+```
 
 An example of a Chrome/Firefox tampermonkey plugin to download from webtorrent would be:
 
