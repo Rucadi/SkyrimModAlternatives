@@ -9,7 +9,18 @@ This is a project that aims to put together the Skyrim Mod Community and creatin
 
 
 # Seed mods
-Seeding mods using seed.js
+Seeding mods using seed.js. 
+usage:
+Invoking the script from the directory where the files are:
+```
+node seed.js  
+```
+Invoking the script specifying the directory where the files are:
+```
+node seed.js <directory>
+```
+Notice that only files that match the database will be seeded.
+
 
 # Download Mods using a modlist
 The modlist format is super simple:
@@ -18,6 +29,12 @@ The modlist format is super simple:
 #this is a list of hashes (as seen on SkyrimModAlternatives.json) 
 fd46debd8ccec5d532633d5b051f62f706638f6a
 ```
+
+In order to download mods:
+```
+node download.js <modlist_file> <download_dir>
+```
+if <download_dir> is not specified, the default download folder will be <current_dir>/downloads
 
 # Contribute adding new mods (And seeding them!)
 
@@ -46,4 +63,39 @@ This information probes useful to:
 3- Create web extensions that allow us to download from an alternative location when looking for mods on a mod website.
 
 
+An example of a Chrome/Firefox tampermonkey plugin to download from webtorrent would be:
 
+```js
+(function () {
+  "use strict";
+
+  const torrentId =
+    "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb_sunflower_1080p_30fps_normal.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb_sunflower_1080p_30fps_normal.mp4";
+  const client = new WebTorrent();
+  client.add(torrentId, onTorrent);
+
+  console.log("ran");
+  var saveData = (function () {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (url, fileName) {
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    };
+  })();
+
+  function onTorrent(torrent) {
+    torrent.files.forEach(function (file) {
+      file.getBlobURL(function (err, url) {
+        saveData(url, torrent.name);
+      });
+    });
+  }
+
+})();
+```
+
+With this knowledge we can create a plugin that downloads from any torrent website using our community-driven project.
