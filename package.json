@@ -9,8 +9,9 @@
     "url": "https://github.com/Rucadi/SkyrimModAlternatives"
   },
   "bin": {
-    "SkyrimModAlternatives": "./bin/cmd.js",
-    "SkyrimModAlternatives_dbc": "./bin/json_to_sqlite3.js"
+    "SkyrimModAlternatives_seed": "./bin/seed.js",
+    "SkyrimModAlternatives_dbc": "./bin/json_to_sqlite3.js",
+    "SkyrimModAlternatives": "./bin/download.js"
   },
   "bugs": {
     "url": "https://github.com/Rucadi/SkyrimModAlternatives"
