@@ -68,19 +68,20 @@ function download(db, modlist, downloadDirectory)
     util.readLinesOfFile(modlist, function(line) {
         if(line.includes('#')) return;
         let tline = line.trim();
+        if(tline.length == 0) return;
         db.get("SELECT * FROM mods WHERE TorrentHash = ?", tline, (err, row) => {
             if (typeof row === "undefined")
-                log_file.write('Hash ' + tline + ' Is not on the mod database.');
+                log_file.write('Hash ' + tline + ' Is not on the mod database.\n');
             else
             {
-                log_file.write("Begin downloading " + row.name);
+                trackedFiles[0]++;
                 client.add(util.createTorrentFromHash(tline), {path: downloadDirectory}, function(torrent) {//we don't use the name because it's not needed
-                    trackedFiles[0]++;
+                    log_file.write("["+row.TorrentHash+"]"+row.Name + " Downloading...\n");
                     torrent.on('done', function(torrent)
                     {
                         trackedFiles[0]--;
                         trackedFiles[1]++;
-                        log_file.write("["+row.TorrentHash+"]"+row.name + " downloaded successfully\n");
+                        log_file.write("["+row.TorrentHash+"]"+row.Name + " downloaded successfully\n");
                     })                    
                 })
             }
@@ -183,6 +184,11 @@ function init(db)
 
         seed(db, seed_folder);
 
+    }
+    else
+    {
+        print_help();
+        exit();
     }
 }
 
