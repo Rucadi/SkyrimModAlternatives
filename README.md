@@ -50,12 +50,13 @@ This file contains the following information that uniquely identifies a mod:
     {
       "SkyrimVersion": "AE",
       "Name": "SexLab SE Sex Animation Framwork",
+      "ModVersion": "1.64c",
       "FileName": "SexLabFrameworkAE_v164c.7z",
       "TorrentHash": "fd46debd8ccec5d532633d5b051f62f706638f6a",
-      "FileSize": "1312312", 
+      "FileSize": "72208706", 
       "Url": "https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v164c-010722/",
       "NexusId": "",
-      "LoversId": "91861",
+      "LoversId": "20058",
       "FileId": "1202958",
       "NSFW": true,
       "Author": "By Ashal"
