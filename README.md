@@ -43,17 +43,18 @@ This file contains the following information that uniquely identifies a mod:
   "mods": [
     {
       "SkyrimVersion": "SE",
-      "Name": "SkyUI",
-      "ModVersion": "5.2",
-      "FileName": "SkyUI_5_2_SE-12604-5-2SE.7z",
-      "TorrentHash": "0253a1f8d0e52e5cd9da8890fd3ed7ab1520e3b2",
-      "FileSize": "2783417", 
-      "Url": "https://www.nexusmods.com/skyrimspecialedition/mods/12604",
-      "NexusId": "12604",
+      "Name": "Unofficial Skyrim Special Edition Patch",
+      "ModVersion": "4.2.6a",
+      "FileName": "Unofficial Skyrim Special Edition Patch-266-4-2-6a-1636838663.7z",
+      "TorrentHash": "d09b972082830f89649a3ac66c610ee6d9637b9d",
+      "FileSize": "134034173", 
+      "Url": "https://www.nexusmods.com/skyrimspecialedition/mods/266",
+      "NexusId": "266",
       "LoversId": "",
-      "FileId": "35407",
+      "FileId": "241103",
       "NSFW": false,
-      "Author": "SkyUI Team"
+      "Author": "Unofficial Patch Project Team",
+      "Permissions" : "You may upload unmodified copies of the latest version of the patch to any website of your choosing so long as the documentation is retained as-is."
     }
   ]
 }
