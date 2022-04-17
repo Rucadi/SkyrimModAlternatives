@@ -22,14 +22,8 @@ The Helper Scripts are scripts that expand the download buttons from NexusMods a
 
 
 # Usage
-```
- Skyrim Mod Alternatives CLI
 
-Download a modlist: sma download <modlist.txt> <downloadDirectory>
-Seed a folder: sma seed <directory>
-
-Example: sma download modlist.txt mod_downloads
-```
+<img width="778" alt="image" src="https://user-images.githubusercontent.com/6445619/163729989-ab14fb69-fa52-494d-884f-fe03b5925f41.png">
 Notice that only files that match the database will be seeded.
 
 
