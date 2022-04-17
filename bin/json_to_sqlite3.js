@@ -6,7 +6,7 @@ const db = new sqlite3.Database(db_name);
 //drop table mods sqlite3
 db.run("DROP TABLE IF EXISTS mods", 
     (dbt, err) => {
-            db.run("CREATE TABLE IF NOT EXISTS mods ( SkyrimVersion TEXT, name TEXT, filename TEXT, torrentHash TEXT PRIMARY KEY, Url TEXT, NexusId TEXT, LoversId TEXT, FileId TEXT, NSFW BOOLEAN, Author TEXT)",
+            db.run("CREATE TABLE IF NOT EXISTS mods ( SkyrimVersion TEXT, Name TEXT, ModVersion TEXT, FileName TEXT, TorrentHash TEXT PRIMARY KEY, FileSize TEXT, Url TEXT, NexusId TEXT, LoversId TEXT, FileId TEXT, NSFW BOOLEAN, Author TEXT)",
                 (dbt, err) => {
                     init();
                 });
@@ -33,7 +33,7 @@ function init()
             for(var i = 0; i < jsonData.mods.length; i++)
             {
                 var mod = jsonData.mods[i];
-                db.run("INSERT INTO mods VALUES (?,?,?,?,?,?,?,?,?,?)", [mod.SkyrimVersion, mod.name, mod.filename, mod.torrentHash, mod.Url, mod.NexusId, mod.LoversId, mod.FileId, mod.NSFW, mod.Author]);
+                db.run("INSERT INTO mods VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", [mod.SkyrimVersion, mod.Name, mod.ModVersion, mod.FileName, mod.TorrentHash, mod.FileSize, mod.Url, mod.NexusId, mod.LoversId, mod.FileId, mod.NSFW, mod.Author]);
             }
             
 

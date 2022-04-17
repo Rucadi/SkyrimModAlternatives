@@ -46,17 +46,23 @@ The database is a sqlite database generated from the SkyrimModAlternatives.json 
 This file contains the following information that uniquely identifies a mod:
 ```json
 {
-  "SkyrimVersion": "AE",
-  "name": "SexLab SE Sex Animation Framwork",
-  "filename": "SexLabFrameworkAE_v164c.7z",
-  "torrentHash": "fd46debd8ccec5d532633d5b051f62f706638f6a",
-  "Url": "https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v164c-010722/",
-  "NexusId": "",
-  "LoversId": "91861",
-  "FileId": "1202958",
-  "NSFW": true,
-  "Author": "By Ashal"
+  "mods": [
+    {
+      "SkyrimVersion": "AE",
+      "Name": "SexLab SE Sex Animation Framwork",
+      "FileName": "SexLabFrameworkAE_v164c.7z",
+      "TorrentHash": "fd46debd8ccec5d532633d5b051f62f706638f6a",
+      "FileSize": "1312312", 
+      "Url": "https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v164c-010722/",
+      "NexusId": "",
+      "LoversId": "91861",
+      "FileId": "1202958",
+      "NSFW": true,
+      "Author": "By Ashal"
+    }
+  ]
 }
+
 ```
 This information probes useful to: 
 

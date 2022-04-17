@@ -51,7 +51,7 @@ function download(db, modlist, downloadDirectory)
     util.readLinesOfFile(modlist, function(line) {
         if(line.includes('#')) return;
         let tline = line.trim();
-        db.get("SELECT * FROM mods WHERE torrentHash = ?", tline, (err, row) => {
+        db.get("SELECT * FROM mods WHERE TorrentHash = ?", tline, (err, row) => {
             if (typeof row === "undefined")
                 log_file.write('Hash ' + tline + ' Is not on the mod database.');
             else
@@ -63,7 +63,7 @@ function download(db, modlist, downloadDirectory)
                     {
                         trackedFiles[0]--;
                         trackedFiles[1]++;
-                        log_file.write("["+row.torrentHash+"]"+row.name + " downloaded successfully\n");
+                        log_file.write("["+row.TorrentHash+"]"+row.name + " downloaded successfully\n");
                     })                    
                 })
             }
@@ -84,7 +84,7 @@ function seed(db, seedDirectory)
 
     function onSeedBegin(torrent)
     {
-        db.get("SELECT * FROM mods WHERE torrentHash = ?", torrent.infoHash, (err, row) => {
+        db.get("SELECT * FROM mods WHERE TorrentHash = ?", torrent.infoHash, (err, row) => {
             if (typeof row === "undefined")
             {
                 torrent.destroy(function () {

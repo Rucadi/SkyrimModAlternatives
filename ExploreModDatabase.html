@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+	<title>Explore mod database</title>
+</head>
+<body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-asm.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/webtorrent/1.8.13/webtorrent.min.js"></script>"
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+
+	<div class="container">
+		<div style="height: 50px;"></div>
+
+		<div class="row">
+			<div class="col"></div>
+			<div class="col-sm-12 col-md-12 col-lg-10">
+				<table class="table table-dark table-striped">
+					<thead>
+						<tr>
+							<th scope="col">Version</th>
+							<th scope="col">Author</th>
+							<th scope="col">Name</th>
+							<th scope="col">Size</th>
+							<th scope="col">ModVersion</th>
+							<th scope="col">Hash</th>
+						</tr>
+					  </thead>
+					  <tbody id="tbody">
+						
+					  </tbody>
+				</table>
+
+			</div>
+			<div class="col"></div>
+		</div>
+	</div>
+
+	<div style="height: 50px;"></div>
+
+	<script> 
+	const tableBody = document.querySelector('#tbody')
+
+		let db = {}
+		function onDatabaseDownloaded(torrent) {
+			torrent.files.forEach(function (file) {
+			file.getBuffer((err, buffer) => {
+				initializeWebsite(buffer);
+				});
+			});
+			};
+
+		const magnetURI = 'magnet:?xt=urn:btih:46fdfad71cf59de8be7a9aab1aeb8d57c312f7fd&dn=SMA.db&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
+
+		const client = new WebTorrent();
+		client.add(magnetURI, onDatabaseDownloaded);
+		
+	function addRowToTable(row, column) {
+		console.log(row)
+		let rowHTML = '<tr>'
+		rowHTML += '<td>' + row.SkyrimVersion + '</td>'
+		rowHTML += '<td>' + row.Author + '</td>'
+		rowHTML += '<td>' + row.Name + '</td>'
+		rowHTML += '<td>' + row.FileSize + '</td>'
+		rowHTML += '<td>' + row.ModVersion + '</td>'
+	    rowHTML += '<td>' + row.TorrentHash +'</td>'
+		rowHTML += '</tr>'
+		tableBody.innerHTML += rowHTML
+	}
+
+
+    function initializeWebsite(filebuffer)
+    {
+      console.log("hola");
+	  const initSqlJs = window.initSqlJs;
+	  initSqlJs().then(function(SQL){
+		db = new SQL.Database(filebuffer);
+		db.each("SELECT * FROM mods", addRowToTable);
+		});
+    }
+	
+	</script>
+</body>
+</html>
