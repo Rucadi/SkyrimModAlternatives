@@ -29,6 +29,7 @@
 							<th scope="col">Size</th>
 							<th scope="col">ModVersion</th>
 							<th scope="col">Hash</th>
+							<th scope="col">Download</th>
 						</tr>
 					  </thead>
 					  <tbody id="tbody">
@@ -47,7 +48,8 @@
 	const tableBody = document.querySelector('#tbody')
 
 		let db = {}
-		function onDatabaseDownloaded(torrent) {
+
+		/*function onDatabaseDownloaded(torrent) {
 			torrent.files.forEach(function (file) {
 			file.getBuffer((err, buffer) => {
 				initializeWebsite(buffer);
@@ -58,17 +60,33 @@
 		const magnetURI = 'magnet:?xt=urn:btih:46fdfad71cf59de8be7a9aab1aeb8d57c312f7fd&dn=SMA.db&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com'
 
 		const client = new WebTorrent();
-		client.add(magnetURI, onDatabaseDownloaded);
+		client.add(magnetURI, onDatabaseDownloaded);*/
+
+	function load_binary_resource(url) {
+        var byteArray = [];
+        var req = new XMLHttpRequest();
+        req.open('GET', url, false);
+        req.overrideMimeType('text\/plain; charset=x-user-defined');
+        req.send(null);
+        if (req.status != 200) return byteArray;
+        for (var i = 0; i < req.responseText.length; ++i) {
+            byteArray.push(req.responseText.charCodeAt(i) & 0xff)
+        }
+        return byteArray;
+    }
 		
+	initializeWebsite(load_binary_resource('https://raw.githubusercontent.com/Rucadi/SkyrimModAlternatives/master/SMA.db'));
 	function addRowToTable(row, column) {
 		console.log(row)
 		let rowHTML = '<tr>'
 		rowHTML += '<td>' + row.SkyrimVersion + '</td>'
 		rowHTML += '<td>' + row.Author + '</td>'
-		rowHTML += '<td>' + row.Name + '</td>'
+		rowHTML += '<td> <a href="'+ row.Url +'">' + row.Name + '</a></td>'
 		rowHTML += '<td>' + row.FileSize + '</td>'
 		rowHTML += '<td>' + row.ModVersion + '</td>'
 	    rowHTML += '<td>' + row.TorrentHash +'</td>'
+		if(row.TorrentHash !== "") rowHTML += '<td> <a href="https://rucadi.github.io/sma.html?TorrentHash='+ row.TorrentHash +'"> download </a></td>'
+		else rowHTML += '<td> </td>'
 		rowHTML += '</tr>'
 		tableBody.innerHTML += rowHTML
 	}
