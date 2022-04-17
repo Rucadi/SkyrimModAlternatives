@@ -50,6 +50,27 @@ function ensureDatabase(callback)
 }
 
 
+function downloadSingle(db, hash)
+{
+    db.get("SELECT * FROM mods WHERE TorrentHash = ?", hash, (err, row) => {
+        if(typeof row == "undefined") 
+        {
+            console.log("Hash "+hash+" is not on the mod database");
+            exit();
+        }
+        else{
+            console.log("Trying to download: "+row.Name);
+            client.add(util.createTorrentFromHash(hash), function(torrent) {
+                torrent.on('done', function(torrent)
+                {
+                    console.log(row.Name + " downloaded successfully");
+                    exit(0);
+                })
+            });
+        }
+        });
+}
+
 function download(db, modlist, downloadDirectory)
 {
     var log_file = fs.createWriteStream(process.cwd() + "/sma_download.log", {flags : 'w'});
@@ -185,6 +206,17 @@ function init(db)
 
         seed(db, seed_folder);
 
+    }
+    else if(process.argv[2] == "single")
+    {
+        
+        if(process.argv.length <= 3)
+        {
+            print_help();
+            exit();
+        }
+        let hash = process.argv[3];
+        downloadSingle(db, hash);
     }
     else
     {
