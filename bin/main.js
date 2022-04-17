@@ -168,6 +168,7 @@ function init(db)
         console.log("\x1b[34m%s\x1b[0m", "Skyrim Mod Alternatives CLI");
 
         console.log("");
+        console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Download a mod:", "sma single <modhash>");
         console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Download a modlist:", "sma download <modlist.txt> <downloadDirectory>");
         console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Seed a folder:", "sma seed <directory>");
         console.log("");
