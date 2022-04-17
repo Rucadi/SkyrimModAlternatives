@@ -1,5 +1,3 @@
-[wip]
-
 # SkyrimModAlternatives
 This is a project that aims to put together the Skyrim Mod Community and creating efforts to: 
 ```
@@ -23,33 +21,17 @@ The Helper Scripts are scripts that expand the download buttons from NexusMods a
 
 
 
-# Seed mods
-Seeding mods using seed.js. 
-usage:
-Invoking the script from the directory where the files are:
+# Usage
 ```
-node seed.js  
-```
-Invoking the script specifying the directory where the files are:
-```
-node seed.js <directory>
+ Skyrim Mod Alternatives CLI
+
+Download a modlist: sma download <modlist.txt> <downloadDirectory>
+Seed a folder: sma seed <directory>
+
+Example: sma download modlist.txt mod_downloads
 ```
 Notice that only files that match the database will be seeded.
 
-
-# Download Mods using a modlist
-The modlist format is super simple:
-```
-#this is a comment
-#this is a list of hashes (as seen on SkyrimModAlternatives.json) 
-fd46debd8ccec5d532633d5b051f62f706638f6a
-```
-
-In order to download mods:
-```
-node download.js <modlist_file> <download_dir>
-```
-if <download_dir> is not specified, the default download folder will be <current_dir>/downloads
 
 # Contribute adding new mods (And seeding them!)
 
@@ -62,18 +44,18 @@ This file contains the following information that uniquely identifies a mod:
 {
   "mods": [
     {
-      "SkyrimVersion": "AE",
-      "Name": "SexLab SE Sex Animation Framwork",
-      "ModVersion": "1.64c",
-      "FileName": "SexLabFrameworkAE_v164c.7z",
-      "TorrentHash": "fd46debd8ccec5d532633d5b051f62f706638f6a",
-      "FileSize": "72208706", 
-      "Url": "https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v164c-010722/",
-      "NexusId": "",
-      "LoversId": "20058",
-      "FileId": "1202958",
-      "NSFW": true,
-      "Author": "By Ashal"
+      "SkyrimVersion": "SE",
+      "Name": "SkyUI",
+      "ModVersion": "5.2",
+      "FileName": "SkyUI_5_2_SE-12604-5-2SE.7z",
+      "TorrentHash": "0253a1f8d0e52e5cd9da8890fd3ed7ab1520e3b2",
+      "FileSize": "2783417", 
+      "Url": "https://www.nexusmods.com/skyrimspecialedition/mods/12604",
+      "NexusId": "12604",
+      "LoversId": "",
+      "FileId": "35407",
+      "NSFW": false,
+      "Author": "SkyUI Team"
     }
   ]
 }
@@ -86,40 +68,3 @@ This information probes useful to:
 2 - Identify the mod
 3 - Create web extensions that allow us to download from an alternative location when looking for mods on a mod website.
 ```
-
-An example of a Chrome/Firefox tampermonkey plugin to download from webtorrent would be:
-
-```js
-(function () {
-  "use strict";
-
-  const torrentId =
-    "magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e&dn=bbb_sunflower_1080p_30fps_normal.mp4&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=http%3A%2F%2Fdistribution.bbb3d.renderfarming.net%2Fvideo%2Fmp4%2Fbbb_sunflower_1080p_30fps_normal.mp4";
-  const client = new WebTorrent();
-  client.add(torrentId, onTorrent);
-
-  console.log("ran");
-  var saveData = (function () {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    return function (url, fileName) {
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    };
-  })();
-
-  function onTorrent(torrent) {
-    torrent.files.forEach(function (file) {
-      file.getBlobURL(function (err, url) {
-        saveData(url, torrent.name);
-      });
-    });
-  }
-
-})();
-```
-
-With this knowledge we can create a plugin that downloads from any torrent website using our community-driven project.
