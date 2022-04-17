@@ -23,7 +23,9 @@ The Helper Scripts are scripts that expand the download buttons from NexusMods a
 
 # Usage
 
-<img width="652" alt="image" src="https://user-images.githubusercontent.com/6445619/163731231-ec3a50c6-705b-47fc-a5cd-789fea48a6fc.png">Notice that only files that match the database will be seeded.
+<img width="652" alt="image" src="https://user-images.githubusercontent.com/6445619/163731231-ec3a50c6-705b-47fc-a5cd-789fea48a6fc.png">
+
+Notice that only files that match the database will be seeded.
 
 
 # Contribute adding new mods (And seeding them!)
