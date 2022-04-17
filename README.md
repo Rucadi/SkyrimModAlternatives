@@ -15,7 +15,7 @@ You may contribute to the database using information from mods that does not hav
 For such mods, no TorrentHash will be uploaded to the database until the Author gives their explicit permission, 
 making them searchable through the database but not downloadable.
 
-# Explore the database (Contributers wanted to make it awesome!)
+# Explore the database (Contributors wanted to make it awesome!)
 https://rucadi.github.io/ExploreModDatabase.html
 
 
