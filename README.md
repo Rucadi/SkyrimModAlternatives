@@ -13,6 +13,9 @@ The Helper Scripts are scripts that expand the download buttons from NexusMods a
 <img width="614" alt="image" src="https://user-images.githubusercontent.com/6445619/163729234-a643fe86-7323-4f33-8e34-10fc34b81a6f.png">
 <img width="243" alt="image" src="https://user-images.githubusercontent.com/6445619/163729250-a5acf6da-3494-4a92-976c-957a09e02528.png">
 
+# Install the command line interface
+- [You must have node installed](https://nodejs.org/en/download/)
+- Do the following command in Windows Terminal: `npm -global i mod-alternatives`
 
 # Install helper script for NexusMods
 - [Download from GitHub](https://github.com/Rucadi/SkyrimModAlternatives/raw/master/scripts/sma_nexus.user.js)
