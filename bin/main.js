@@ -6,6 +6,7 @@ import { exit } from 'process';
 import fsx from 'fs-extra';
 import path from 'path';
 import util from './utils.js';
+import https from 'https';
 
 
 const client = new WebTorrent()
@@ -15,14 +16,30 @@ function ensureDatabase(callback)
 {
     if(!fs.existsSync(util.constants.db_path))
     {
-        console.log("Downloading "+util.constants.db_name+" from torrent");
-        client.add(util.createTorrentFromHash(util.constants.db_hash), {path: path.dirname(util.constants.db_path)}, function(torrent) {
-            torrent.on('done', function(torrent)
-            {
-                console.log(util.constants.db_name+" downloaded successfully");
-                callback(new sqlite3.Database(util.constants.db_path));
+        if(!fs.existsSync(util.constants.database_from_torrent_path))
+        {
+            fsx.ensureDirSync(path.dirname(util.constants.db_path));
+            https.get(util.constants.database_from_github_url,(res) => {
+                const path = util.constants.db_path; 
+                const filePath = fs.createWriteStream(path);
+                res.pipe(filePath);
+                filePath.on('finish',() => {
+                    filePath.close();
+                    callback(new sqlite3.Database(util.constants.db_path));
+                })
             })
-        });
+        }
+        else 
+        {
+            console.log("Downloading "+util.constants.db_name+" from torrent");
+            client.add(util.createTorrentFromHash(util.constants.db_hash), {path: path.dirname(util.constants.db_path)}, function(torrent) {
+                torrent.on('done', function(torrent)
+                {
+                    console.log(util.constants.db_name+" downloaded successfully");
+                    callback(new sqlite3.Database(util.constants.db_path));
+                })
+            });
+        }
     }
     else 
     {   
