@@ -50,8 +50,8 @@
 		db = new SQL.Database(buffer);
 		db.each("SELECT * FROM mods WHERE LoversId="+getModIdFromWebsite(), (row)=>
          {
-            console.log("Rowi: ",row);
-            downloadButton(row.TorrentHash, row.SkyrimVersion, row.ModVersion);
+            if(row.TorrentHash !== "")
+                downloadButton(row.TorrentHash, row.SkyrimVersion, row.ModVersion);
         });
     });
 
