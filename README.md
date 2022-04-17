@@ -9,6 +9,13 @@ This is a project that aims to put together the Skyrim Mod Community and creatin
 4- Decentralized system, all this code can run in any computer and anyone can use this software, it's opensource and based on the webtorrent project. 
 ```
 
+# Install helper script for NexusMods
+- [Download from GitHub](https://github.com/Rucadi/SkyrimModAlternatives/raw/master/scripts/sma_nexus.user.js)
+# Install Helper Script for LoversLab
+- [Download from GitHub](https://github.com/Rucadi/SkyrimModAlternatives/raw/master/scripts/sma_loverslab.user.js)
+
+
+
 # Seed mods
 Seeding mods using seed.js. 
 usage:
