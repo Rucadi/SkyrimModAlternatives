@@ -11,8 +11,7 @@ import https from 'https';
 
 // Force use of webtorrent trackers on all torrents
 globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList()
-  .map((arr) => arr[0])
-  .filter((url) => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0)
+    .filter((url) => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0)
 
 
 const client = new WebTorrent()
