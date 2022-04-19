@@ -8,11 +8,13 @@ import fsx from 'fs-extra';
 import path from 'path';
 import util from './utils.js';
 import https from 'https';
+import wrtc from 'wrtc'
 
-// Force use of webtorrent trackers on all torrents
-globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList()
-    .filter((url) => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0)
+globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
+  .map((arr) => arr[0])
+  .filter((url) => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0)
 
+globalThis.WRTC = wrtc
 
 const client = new WebTorrent()
 
