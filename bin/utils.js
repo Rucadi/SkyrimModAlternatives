@@ -63,14 +63,10 @@ class Utility
 
     getAnnounceList = () =>
     {
-        //create a list
         let list = [];
-        //read the file
         this.readLinesOfFile(this.constants.trackers_path, function(line){
             list.push(line);
-        }
-        );
-        //return the list
+        });
         return list;
     }
 
