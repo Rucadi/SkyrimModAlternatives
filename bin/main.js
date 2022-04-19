@@ -44,7 +44,7 @@ function ensureDatabase(callback)
     }
     else 
     {   
-        client.seed(util.constants.db_path);
+        client.seed(util.constants.db_path, {announce: util.getAnnounceList()});
         callback(new sqlite3.Database(util.constants.db_path));
     }
 }
@@ -97,7 +97,7 @@ function download(db, modlist, downloadDirectory)
             else
             {
                 trackedFiles[0]++;
-                client.add(util.createTorrentFromHash(tline), {path: downloadDirectory}, function(torrent) {//we don't use the name because it's not needed
+                client.add(util.createTorrentFromHash(tline), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {//we don't use the name because it's not needed
                     log_file.write("["+row.TorrentHash+"]"+row.Name + " Downloading...\n");
                     torrent.on('done', function(torrent)
                     {
@@ -146,7 +146,7 @@ function seed(db, seedDirectory)
           {
             if (typeof row !== "undefined" && fs.statSync(filepath).isFile())
             {
-                client.seed(filepath, onSeedBegin);
+                client.seed(filepath, {announce: util.getAnnounceList()},  onSeedBegin);
             }
           });   
           

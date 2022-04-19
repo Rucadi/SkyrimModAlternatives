@@ -48,7 +48,7 @@ class Utility
     
     createTorrentFromHash = (hash) =>
     {
-        return "magnet:?xt=urn:btih:"+hash+this.getTrackers(this.constants.trackers_path);;
+        return "magnet:?xt=urn:btih:"+hash+this.getTrackers(this.constants.trackers_path);
     }
     
     getTrackers = (trackerList) =>
@@ -59,6 +59,19 @@ class Utility
         });
     
         return magnet;
+    }
+
+    getAnnounceList = () =>
+    {
+        //create a list
+        let list = [];
+        //read the file
+        this.readLinesOfFile(this.constants.trackers_path, function(line){
+            list.push(line);
+        }
+        );
+        //return the list
+        return list;
     }
 
 
