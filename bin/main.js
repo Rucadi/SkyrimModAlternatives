@@ -9,6 +9,7 @@ import path from 'path';
 import util from './utils.js';
 import https from 'https';
 import wrtc from 'wrtc'
+import ct from 'create-torrent'
 
 globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
   .map((arr) => arr[0])
