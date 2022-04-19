@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
-import WebTorrent from 'webtorrent-hybrid'
+import WebTorrent from 'webtorrent'
 import sqlite3 from 'sqlite3';
 import { exit } from 'process';
 import fsx from 'fs-extra';

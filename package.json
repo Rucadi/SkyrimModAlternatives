@@ -2,7 +2,7 @@
   "name": "mod-alternatives",
   "type": "module",
   "description": "A collaborative mod preservation and availability project for Skyrim",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": {
     "name": "Rucadi",
     "email": "rucadi96@gmail.com",
@@ -21,7 +21,7 @@
   "dependencies": {
     "fs-extra": "^10.0.1",
     "sqlite3": "^5.0.3",
-    "webtorrent-hybrid": "^5.0.2"
+    "webtorrent": "https://github.com/Rucadi/webtorrent"
   },
   "engines": {
     "node": ">=12.20.0"
