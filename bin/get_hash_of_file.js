@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import { exit } from 'process';
-import WebTorrent from 'webtorrent'
-const client = new WebTorrent()
-client.seed(process.argv[2], torrent=> 
+import ct from 'create-torrent'
+
+
+ct.createTorrent(process.argv[2], torrent=> 
     {
         console.log(torrent.infoHash);
-        exit(0);
-    });
+});

@@ -10,6 +10,7 @@ import util from './utils.js';
 import https from 'https';
 import wrtc from 'wrtc'
 import ct from 'create-torrent'
+import SimplePeer from 'simple-peer';
 
 globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
   .map((arr) => arr[0])
@@ -17,7 +18,49 @@ globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
 
 globalThis.WRTC = wrtc
 
-const client = new WebTorrent()
+const rtcConfig = {
+    iceServers: [
+        {
+            urls: "turn:openrelay.metered.ca:80",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "turn:openrelay.metered.ca:443",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "turn:openrelay.metered.ca:443?transport=tcp",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "turn:openrelay.metered.ca:80?transport=tcp",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "stun:openrelay.metered.ca:80",
+          },
+    ],
+    sdpSemantics: 'unified-plan',
+    bundlePolicy: 'max-bundle',
+    iceCandidatePoolsize: 1
+}
+
+  
+
+const client = new WebTorrent(
+    {
+        tracker: {
+            rtcConfig: {
+                ...SimplePeer.config,
+                ...rtcConfig
+            }
+        }
+    }
+)
 
  //If SMA.db does not exists, then download it from torrent
 function ensureDatabase(callback)
@@ -57,7 +100,7 @@ function ensureDatabase(callback)
 }
 
 
-function downloadSingle(db, hash)
+function downloadSingle(db, hash, downloadDirectory)
 {
     db.get("SELECT * FROM mods WHERE TorrentHash = ?", hash, (err, row) => {
         if(typeof row == "undefined") 
@@ -67,7 +110,7 @@ function downloadSingle(db, hash)
         }
         else{
             console.log("Trying to download: "+row.Name);
-            client.add(util.createTorrentFromHash(hash), function(torrent) {
+            client.add(util.createTorrentFromHash(hash), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {
                 torrent.on('done', function(torrent)
                 {
                     console.log(row.Name + " downloaded successfully");
@@ -224,7 +267,7 @@ function init(db)
             exit();
         }
         let hash = process.argv[3];
-        downloadSingle(db, hash);
+        downloadSingle(db, hash, ".");
     }
     else
     {
