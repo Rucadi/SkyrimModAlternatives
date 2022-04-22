@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-import { exit } from 'process';
-import ct from 'create-torrent'
+import createTorrent from "create-torrent";
+import parseTorrent from "parse-torrent";
 
-
-ct.createTorrent(process.argv[2], torrent=> 
-    {
-        console.log(torrent.infoHash);
+createTorrent(process.argv[2], (err, torrent) => {
+  console.log(parseTorrent(torrent).infoHash);
 });
