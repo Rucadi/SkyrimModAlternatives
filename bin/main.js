@@ -2,7 +2,6 @@
 
 import fs from 'fs'
 import WebTorrent from 'webtorrent'
-import sqlite3 from 'sqlite3';
 import { exit } from 'process';
 import fsx from 'fs-extra';
 import path from 'path';
@@ -13,7 +12,6 @@ import ct from 'create-torrent'
 import SimplePeer from 'simple-peer';
 import createTorrent from "create-torrent";
 import parseTorrent from "parse-torrent";
-
 const rtcConfig = {
     iceServers: [
         {
@@ -50,7 +48,10 @@ const rtcConfig = {
     iceCandidatePoolsize: 1
 }
 
-  
+var repo = {
+    mods: [],
+    authors:[],
+}
 
 const client = new WebTorrent(
     {
@@ -64,78 +65,23 @@ const client = new WebTorrent(
     }
 )
 
- //If SMA.db does not exists, then download it from torrent
-function ensureDatabase(callback)
+
+
+
+function downloadSingle(hash, downloadDirectory)
 {
-    if(!fs.existsSync(util.constants.db_path))
-    {
-        if(!fs.existsSync(util.constants.database_from_torrent_path))
+    console.log("downloading ", hash);
+    client.add(util.createTorrentFromHash(hash), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {
+        torrent.on('done', function(torrent)
         {
-            fsx.ensureDirSync(path.dirname(util.constants.db_path));
-            https.get(util.constants.database_from_github_url,(res) => {
-                const path = util.constants.db_path; 
-                const filePath = fs.createWriteStream(path);
-                res.pipe(filePath);
-                filePath.on('finish',() => {
-                    filePath.close();
-                    callback(new sqlite3.Database(util.constants.db_path));
-                })
-            })
-        }
-        else 
-        {
-            console.log("Downloading "+util.constants.db_name+" from torrent");
-            client.add(util.createTorrentFromHash(util.constants.db_hash), {path: path.dirname(util.constants.db_path)}, function(torrent) {
-                torrent.on('done', function(torrent)
-                {
-                    console.log(util.constants.db_name+" downloaded successfully");
-                    callback(new sqlite3.Database(util.constants.db_path));
-                })
-            });
-        }
-    }
-    else 
-    {   
-        client.seed(util.constants.db_path, {announce: util.getAnnounceList()});
-        callback(new sqlite3.Database(util.constants.db_path));
-    }
+            console.log("Downloaded!!!");
+            exit(0);
+        })
+    });
+
 }
 
-
-function downloadSingle(db, hash, downloadDirectory, force)
-{
-    if(force)
-    {
-        console.log("downloading ", hash);
-        client.add(util.createTorrentFromHash(hash), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {
-            torrent.on('done', function(torrent)
-            {
-                console.log("Downloaded!!!");
-                exit(0);
-            })
-        });
-    }
-    else
-    db.get("SELECT * FROM mods WHERE TorrentHash = ?", hash, (err, row) => {
-        if(typeof row == "undefined") 
-        {
-            console.log("Hash "+hash+" is not on the mod database");
-            exit();
-        }
-        else{
-            console.log("Trying to download: "+row.Name);
-            client.add(util.createTorrentFromHash(hash), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {
-                torrent.on('done', function(torrent)
-                {
-                    console.log(row.Name + " downloaded successfully");
-                    exit(0);
-                })
-            });
-        }
-        });
-}
-
-function download(db, modlist, downloadDirectory)
+function download(modlist, downloadDirectory)
 {
     var log_file = fs.createWriteStream(process.cwd() + "/sma_download.log", {flags : 'w'});
 
@@ -151,27 +97,24 @@ function download(db, modlist, downloadDirectory)
         exit(); 
     }
 
+    function onTorrenAdded(torrent)
+    {
+        log_file.write("["+row.TorrentHash+"]"+row.Name + " Downloading...\n");
+
+        torrent.on('done', function(torrent){
+            trackedFiles[0]--;
+            trackedFiles[1]++;
+            log_file.write("["+row.TorrentHash+"]"+row.Name + " downloaded successfully\n");
+        });                    
+
+    }
+
     util.readLinesOfFile(modlist, function(line) {
         if(line.includes('#')) return;
         let tline = line.trim();
         if(tline.length == 0) return;
-        db.get("SELECT * FROM mods WHERE TorrentHash = ?", tline, (err, row) => {
-            if (typeof row === "undefined")
-                log_file.write('Hash ' + tline + ' Is not on the mod database.\n');
-            else
-            {
-                trackedFiles[0]++;
-                client.add(util.createTorrentFromHash(tline), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {//we don't use the name because it's not needed
-                    log_file.write("["+row.TorrentHash+"]"+row.Name + " Downloading...\n");
-                    torrent.on('done', function(torrent)
-                    {
-                        trackedFiles[0]--;
-                        trackedFiles[1]++;
-                        log_file.write("["+row.TorrentHash+"]"+row.Name + " downloaded successfully\n");
-                    })                    
-                })
-            }
-          });
+        trackedFiles[0]++;
+        client.add(util.createTorrentFromHash(tline), {path: downloadDirectory, announce: util.getAnnounceList()}, onTorrenAdded);
     });
 
 
@@ -182,7 +125,7 @@ function download(db, modlist, downloadDirectory)
 }
 
 
-function seed(db, seedDirectory, force)
+function seed(seedDirectory)
 {
     var log_file = fs.createWriteStream(process.cwd() + "/sma_seed.log", {flags : 'w'});
     fs.readdir(seedDirectory, (err, files) => 
@@ -191,22 +134,8 @@ function seed(db, seedDirectory, force)
         files.forEach(file => {
             console.log(file)
             createTorrent(path.join(seedDirectory,file), (err, torrent) => {
-                if (force)
-                {                               
-                    log_file.write("Seeding: " + torrent.name);
-                    client.seed(torrent, { announce: util.getAnnounceList() });
-                }
-                else {
-                    db.get("SELECT * FROM mods WHERE TorrentHash = ?", torrent.infoHash, (err, row) => {
-                        if (typeof row === "undefined") {
-                            log_file.write('File ' + torrent.name + ' ' + torrent.infoHash + ' Is not on the mod database.');
-                        }
-                        else {
-                            log_file.write("Seeding: " + torrent.name);
-                            client.seed(torrent, { announce: util.getAnnounceList() });
-                        }
-                    });
-                }
+            log_file.write("Seeding: " + torrent.name);
+            client.seed(torrent, { announce: util.getAnnounceList() });
             });
         });
     });
@@ -218,20 +147,16 @@ function seed(db, seedDirectory, force)
 }
 
 
+
 const getDirectories = (source, callback) =>
-  fs.readdir(source, { withFileTypes: true }, (err, files) => {
-    if (err) {
-      callback(err)
-    } else {
       callback(
-        files
+        fs.readdirSync(source, { withFileTypes: true })
           .filter(dirent => dirent.isDirectory())
           .map(dirent => dirent.name)
       )
-    }
-  })
+  
 
-function seedFolders(db, seedDirectory, force)
+function seedFolders(seedDirectory)
 {
     var log_file = fs.createWriteStream(process.cwd() + "/sma_seed.log", {flags : 'w'});
     getDirectories(seedDirectory, (directory) => {
@@ -241,8 +166,6 @@ function seedFolders(db, seedDirectory, force)
                 console.log("seeding: " + torrent.name+ " "+torrent.infoHash);
             });
         }
-
-
     });
 
     setInterval(function() {
@@ -251,7 +174,78 @@ function seedFolders(db, seedDirectory, force)
       }, 1000);   //Stats every second
 }
 
-function init(db)
+
+function seedRepository(databaseDirectory)
+{
+    getDirectories(databaseDirectory, (list) => {
+        for(let author of list)
+        {
+            const authorModFolder = path.join(databaseDirectory, author, 'mods')
+            const authorProfileFolder = path.join(databaseDirectory, author, 'profile')
+
+            client.seed(authorProfileFolder.toString(), { announce: util.getAnnounceList() }, (torrent) => {
+                console.log("Seeding author profile: "+ author+" "+torrent.infoHash);
+            });
+
+            getDirectories(authorModFolder, (list) => {
+                for(let mod of list)
+                {
+                    client.seed(path.join(authorModFolder, mod).toString() , { announce: util.getAnnounceList() }, (torrent) => {
+                        console.log("Author: "+ author+ ": seeding mod: "+ torrent.name+ " "+torrent.infoHash);
+                    });
+                }
+            });
+        }
+    });
+}
+
+
+
+async function createDatabaseFromRepository(databaseDirectory, outputFile="database.json")
+{
+    getDirectories(databaseDirectory, (list) => {
+        for(let author of list)
+        {
+            const authorModFolder = path.join(databaseDirectory, author, 'mods')
+            const authorProfileFolder = path.join(databaseDirectory, author, 'profile')
+
+
+            createTorrent(authorProfileFolder.toString(), (err, torrent) => {
+                let author_i = {
+                    name: author,
+                    hash: parseTorrent(torrent).infoHash
+                }
+                repo.authors.push(author_i);
+            });
+
+            getDirectories(authorModFolder, (list) => {
+                for(let modFolderName of list)
+                {
+                    const modFolder = path.join(authorModFolder, modFolderName);
+                    createTorrent(modFolder.toString(), (err, torrent) => 
+                    {
+                            var mod = JSON.parse(fs.readFileSync(path.join(modFolder, 'mod.json')));
+                            let i_mod = {
+                                Name: mod.name,
+                                Description: mod.description,
+                                Type: mod.type,
+                                SkyrimVersion: mod.versions.map(v => v.gameVersion),
+                                Hash: parseTorrent(torrent).infoHash,
+                                NSFW: mod.NSFW,
+                                Author: author,
+                                Permission: mod.permission
+                            };
+                            repo.mods.push(i_mod);
+                    });
+                }
+            });
+        }
+    });
+    process.on('exit', () => {    fs.writeFileSync(outputFile, JSON.stringify(repo,null,2));    });
+
+}
+
+function init()
 {
     let print_help = () => 
     {
@@ -260,7 +254,9 @@ function init(db)
         console.log("");
         console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Download a mod:", "sma get <modhash>");
         console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Download a modlist:", "sma list <modlist.txt> <downloadDirectory>");
-        console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Seed a folder:", "sma seed <directory>");
+        console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Seed mods inside a folder:", "sma seed <directory>");
+        console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Seed a folder:", "sma fseed <directory>");
+        console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Seed a Repository:", "sma seed_repository <directory>");
         console.log("");
         console.log("\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ", "Example:", "sma list modlist.txt mod_downloads");
     };
@@ -283,7 +279,7 @@ function init(db)
 
         let modlist = process.argv[3];
         let downloadDirectory = process.argv.length > 4? process.argv[4]  : process.cwd()+"/downloads";
-        download(db, modlist, downloadDirectory);
+        download(modlist, downloadDirectory);
     }
     else if(process.argv[2] == "seed")
     {
@@ -294,8 +290,7 @@ function init(db)
             exit();
         }
         let seed_folder = process.argv[3];
-        let force = process.argv.length > 4? true  : false;
-        seed(db, seed_folder,force);
+        seed(seed_folder);
     }
     else if(process.argv[2]== "fseed")
     {
@@ -305,8 +300,28 @@ function init(db)
             exit();
         }
         let seed_folder = process.argv[3];
-        let force = process.argv.length > 4? true  : false;
-        seedFolders(db, seed_folder, force);
+        seedFolders(seed_folder);
+    }
+    else if(process.argv[2]== "seed_repository")
+    {
+        if(process.argv.length <= 3)
+        {
+            print_help();
+            exit();
+        }
+        let seed_folder = process.argv[3];
+        seedRepository(seed_folder);
+    }
+    else if(process.argv[2]== "create_repository")
+    {
+        client.destroy();
+        if(process.argv.length <= 3)
+        {
+            print_help();
+            exit();
+        }
+        let seed_folder = process.argv[3];
+        createDatabaseFromRepository(seed_folder);
     }
     else if(process.argv[2] == "get")
     {
@@ -317,9 +332,8 @@ function init(db)
             exit();
         }
         let hash = process.argv[3];
-        let force = process.argv.length > 4? true  : false;
 
-        downloadSingle(db, hash, ".", force);
+        downloadSingle(hash, ".");
     }
     else
     {
@@ -328,9 +342,8 @@ function init(db)
     }
 }
 
-ensureDatabase((db)=>{
-    init(db);    
-});
+init();    
+
 
 
 

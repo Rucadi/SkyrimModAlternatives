@@ -12,16 +12,9 @@ class Utility
 
     constructor()
     {       
-        let db_hash = this.readFirstLineOfFile(path.join(__dirname, '..', 'state', 'db_hash'));
         this.constants = {
-            db_name: "SMA.db",
-            db_hash: db_hash,
-            db_path:  path.join(__dirname, '..', 'state', db_hash, 'SMA.db'),
-            database_from_torrent_path:  path.join(__dirname, '..', 'state', 'database_from_torrent'),
-            database_from_github_url: 'https://raw.githubusercontent.com/Rucadi/SkyrimModAlternatives/master/SMA.db',
             trackers_path:  path.join(__dirname, '..', 'state', 'trackers')
         };
-
     }
 
     readLinesOfFile =  (file, callback) => {

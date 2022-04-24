@@ -47,31 +47,7 @@ The Helper Scripts are scripts that expand the download buttons from NexusMods a
 
 # Contribute adding new mods (And seeding them!)
 
-While this is a decentralized project, we still need to create the database of mods. 
-This database, once created, is shared as a torrent like all the other mods. So while there is people using the system, the database will live on.
-
-The database is a sqlite database generated from the SkyrimModAlternatives.json file. 
-This file contains the following information that uniquely identifies a mod:
-```json
-{
-  "mods": [
-    {
-      "SkyrimVersion": "SE",
-      "Name": "Unofficial Skyrim Special Edition Patch",
-      "ModVersion": "4.2.6a",
-      "FileName": "Unofficial Skyrim Special Edition Patch-266-4-2-6a-1636838663.7z",
-      "TorrentHash": "d09b972082830f89649a3ac66c610ee6d9637b9d",
-      "FileSize": "134034173", 
-      "Url": "https://www.nexusmods.com/skyrimspecialedition/mods/266",
-      "NexusId": "266",
-      "LoversId": "",
-      "FileId": "241103",
-      "NSFW": false,
-      "Author": "Unofficial Patch Project Team",
-      "Permissions" : "You may upload unmodified copies of the latest version of the patch to any website of your choosing so long as the documentation is retained as-is."
-    }
-  ]
-}
+See https://github.com/Rucadi/SkyrimModRepository
 
 ```
 This information probes useful to: 
