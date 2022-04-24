@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
-import WebTorrent from 'webtorrent-hybrid'
+import WebTorrent from 'webtorrent'
 import sqlite3 from 'sqlite3';
 import { exit } from 'process';
 import fsx from 'fs-extra';
@@ -13,15 +13,6 @@ import ct from 'create-torrent'
 import SimplePeer from 'simple-peer';
 import createTorrent from "create-torrent";
 import parseTorrent from "parse-torrent";
-WebTorrent.WRTC = wrtc
-
-WebTorrent.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
-  .map((arr) => arr[0])
-  .filter((url) => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0)
-
-
-
-console.log(WebTorrent)
 
 const rtcConfig = {
     iceServers: [
@@ -202,7 +193,7 @@ function seed(db, seedDirectory, force)
             createTorrent(path.join(seedDirectory,file), (err, torrent) => {
                 if (force)
                 {                               
-                    log_file.write("Seeding: " + torrent);
+                    log_file.write("Seeding: " + torrent.name);
                     client.seed(torrent, { announce: util.getAnnounceList() });
                 }
                 else {
