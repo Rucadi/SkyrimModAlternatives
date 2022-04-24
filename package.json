@@ -22,7 +22,7 @@
     "fs-extra": "^10.0.1",
     "globalthis": "^1.0.2",
     "sqlite3": "^5.0.3",
-    "webtorrent": "https://github.com/Rucadi/webtorrent",
+    "webtorrent-hybrid": "https://github.com/Rucadi/webtorrent-hybrid",
     "wrtc": "^0.4.7"
   },
   "engines": {

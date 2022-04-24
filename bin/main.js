@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
-import WebTorrent from 'webtorrent'
+import WebTorrent from 'webtorrent-hybrid'
 import sqlite3 from 'sqlite3';
 import { exit } from 'process';
 import fsx from 'fs-extra';
@@ -13,12 +13,15 @@ import ct from 'create-torrent'
 import SimplePeer from 'simple-peer';
 import createTorrent from "create-torrent";
 import parseTorrent from "parse-torrent";
+WebTorrent.WRTC = wrtc
 
-globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
+WebTorrent.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
   .map((arr) => arr[0])
   .filter((url) => url.indexOf('wss://') === 0 || url.indexOf('ws://') === 0)
 
-globalThis.WRTC = wrtc
+
+
+console.log(WebTorrent)
 
 const rtcConfig = {
     iceServers: [
@@ -60,6 +63,7 @@ const rtcConfig = {
 
 const client = new WebTorrent(
     {
+        webSeeds: true,
         tracker: {
             rtcConfig: {
                 ...SimplePeer.config,
@@ -107,8 +111,20 @@ function ensureDatabase(callback)
 }
 
 
-function downloadSingle(db, hash, downloadDirectory)
+function downloadSingle(db, hash, downloadDirectory, force)
 {
+    if(force)
+    {
+        console.log("downloading ", hash);
+        client.add(util.createTorrentFromHash(hash), {path: downloadDirectory, announce: util.getAnnounceList()}, function(torrent) {
+            torrent.on('done', function(torrent)
+            {
+                console.log("Downloaded!!!");
+                exit(0);
+            })
+        });
+    }
+    else
     db.get("SELECT * FROM mods WHERE TorrentHash = ?", hash, (err, row) => {
         if(typeof row == "undefined") 
         {
@@ -299,7 +315,7 @@ function init(db)
         }
         let seed_folder = process.argv[3];
         let force = process.argv.length > 4? true  : false;
-        seedFolders(db, seed_folder, true);
+        seedFolders(db, seed_folder, force);
     }
     else if(process.argv[2] == "get")
     {
@@ -310,7 +326,9 @@ function init(db)
             exit();
         }
         let hash = process.argv[3];
-        downloadSingle(db, hash, ".");
+        let force = process.argv.length > 4? true  : false;
+
+        downloadSingle(db, hash, ".", force);
     }
     else
     {
