@@ -11,6 +11,8 @@ import https from 'https';
 import wrtc from 'wrtc'
 import ct from 'create-torrent'
 import SimplePeer from 'simple-peer';
+import createTorrent from "create-torrent";
+import parseTorrent from "parse-torrent";
 
 globalThis.WEBTORRENT_ANNOUNCE = util.getAnnounceList().concat(ct.announceList)
   .map((arr) => arr[0])
@@ -43,9 +45,14 @@ const rtcConfig = {
           {
             urls: "stun:openrelay.metered.ca:80",
           },
+          { 
+            urls: 'stun:stun.l.google.com:19302' 
+          },
+          {
+            urls: 'stun:global.stun.twilio.com:3478?transport=udp' 
+        }
     ],
     sdpSemantics: 'unified-plan',
-    bundlePolicy: 'max-bundle',
     iceCandidatePoolsize: 1
 }
 
@@ -168,38 +175,32 @@ function download(db, modlist, downloadDirectory)
 }
 
 
-function seed(db, seedDirectory)
+function seed(db, seedDirectory, force)
 {
     var log_file = fs.createWriteStream(process.cwd() + "/sma_seed.log", {flags : 'w'});
-
-    function onSeedBegin(torrent)
-    {
-        db.get("SELECT * FROM mods WHERE TorrentHash = ?", torrent.infoHash, (err, row) => {
-            if (typeof row === "undefined")
-            {
-                torrent.destroy(function () {
-                    log_file.write('File ' + torrent.name + ' Is not on the mod database but the name matches.');
-                });
-            }
-            else log_file.write("Seeding: " + torrent.name);
-        });   
-    }
-
     fs.readdir(seedDirectory, (err, files) => 
     {
-        if(err){throw err;}
-  
+        if (err) { throw err; }
         files.forEach(file => {
-
-          const filepath = path.join(seedDirectory, file);
-          db.get("SELECT * FROM mods WHERE filename = ?", file, (err, row) => 
-          {
-            if (typeof row !== "undefined" && fs.statSync(filepath).isFile())
-            {
-                client.seed(filepath, {announce: util.getAnnounceList()},  onSeedBegin);
-            }
-          });   
-          
+            console.log(file)
+            createTorrent(path.join(seedDirectory,file), (err, torrent) => {
+                if (force)
+                {                               
+                    log_file.write("Seeding: " + torrent);
+                    client.seed(torrent, { announce: util.getAnnounceList() });
+                }
+                else {
+                    db.get("SELECT * FROM mods WHERE TorrentHash = ?", torrent.infoHash, (err, row) => {
+                        if (typeof row === "undefined") {
+                            log_file.write('File ' + torrent.name + ' ' + torrent.infoHash + ' Is not on the mod database.');
+                        }
+                        else {
+                            log_file.write("Seeding: " + torrent.name);
+                            client.seed(torrent, { announce: util.getAnnounceList() });
+                        }
+                    });
+                }
+            });
         });
     });
 
@@ -210,6 +211,38 @@ function seed(db, seedDirectory)
 }
 
 
+const getDirectories = (source, callback) =>
+  fs.readdir(source, { withFileTypes: true }, (err, files) => {
+    if (err) {
+      callback(err)
+    } else {
+      callback(
+        files
+          .filter(dirent => dirent.isDirectory())
+          .map(dirent => dirent.name)
+      )
+    }
+  })
+
+function seedFolders(db, seedDirectory, force)
+{
+    var log_file = fs.createWriteStream(process.cwd() + "/sma_seed.log", {flags : 'w'});
+    getDirectories(seedDirectory, (directory) => {
+        for(let a of directory)
+        {
+            client.seed(path.join(seedDirectory, a).toString() , { announce: util.getAnnounceList() }, (torrent) => {
+                console.log("seeding: " + torrent.name+ " "+torrent.infoHash);
+            });
+        }
+
+
+    });
+
+    setInterval(function() {
+        process.stdout.clearLine();
+        process.stdout.write("DOWN: "+client.downloadSpeed+ " UP: "+ client.uploadSpeed + " Ratio: " + client.ratio+ " \r");
+      }, 1000);   //Stats every second
+}
 
 function init(db)
 {
@@ -254,9 +287,19 @@ function init(db)
             exit();
         }
         let seed_folder = process.argv[3];
-
-        seed(db, seed_folder);
-
+        let force = process.argv.length > 4? true  : false;
+        seed(db, seed_folder,force);
+    }
+    else if(process.argv[2]== "fseed")
+    {
+        if(process.argv.length <= 3)
+        {
+            print_help();
+            exit();
+        }
+        let seed_folder = process.argv[3];
+        let force = process.argv.length > 4? true  : false;
+        seedFolders(db, seed_folder, true);
     }
     else if(process.argv[2] == "get")
     {
