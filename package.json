@@ -22,7 +22,8 @@
     "fs-extra": "^10.0.1",
     "globalthis": "^1.0.2",
     "sqlite3": "^5.0.3",
-    "webtorrent": "https://github.com/Rucadi/webtorrent",
+    "string-to-stream": "^3.0.1",
+    "webtorrent": "1.6.0",
     "wrtc": "^0.4.7"
   },
   "engines": {
