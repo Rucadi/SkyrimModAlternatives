@@ -9,20 +9,15 @@
     "url": "https://github.com/Rucadi/SkyrimModAlternatives"
   },
   "bin": {
-    "mod-cli": "./bin/main.js",
     "sma": "./bin/main.js",
-    "SkyrimModAlternatives": "./bin/main.js",
-    "sma_build_db": "./bin/json_to_sqlite3.js",
-    "sma_hash_file": "./bin/get_hash_of_file.js"
+    "sma_hash": "./bin/main.js"
   },
   "bugs": {
     "url": "https://github.com/Rucadi/SkyrimModAlternatives"
   },
   "dependencies": {
     "fs-extra": "^10.0.1",
-    "globalthis": "^1.0.2",
     "sqlite3": "^5.0.3",
-    "string-to-stream": "^3.0.1",
     "webtorrent": "1.6.0",
     "wrtc": "^0.4.7"
   },

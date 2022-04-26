@@ -13,6 +13,42 @@ class Utility {
     }
   }
 
+  rtcConfig = {
+    iceServers: [
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:80?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'stun:openrelay.metered.ca:80'
+      },
+      {
+        urls: 'stun:stun.l.google.com:19302'
+      },
+      {
+        urls: 'stun:global.stun.twilio.com:3478?transport=udp'
+      }
+    ],
+    sdpSemantics: 'unified-plan',
+    iceCandidatePoolsize: 1
+  }
+
   readLinesOfFile = (file, callback) => {
     const data = fs.readFileSync(file, 'utf8')
     // vector of data with newline separator
