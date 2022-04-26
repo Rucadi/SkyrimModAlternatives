@@ -29,6 +29,11 @@ function downloadSingle (hash, downloadDirectory) {
       exit(0)
     })
   })
+
+  setInterval(function () {
+    process.stdout.clearLine()
+    process.stdout.write('DOWN: ' + client.downloadSpeed + ' UP: ' + client.uploadSpeed + ' Progress: ' + client.progress + '\r')
+  }, 1000)
 }
 
 function downloadModlist (modlist, downloadDirectory) {
@@ -42,8 +47,7 @@ function downloadModlist (modlist, downloadDirectory) {
     console.log('modlist.txt is not a file')
     exit()
   }
-
-  function onTorrenAdded (torrent) {
+  function onTorrentAdded (torrent) {
     console.log('[' + torrent.infoHash + ']' + torrent.name + ' Downloading...\n')
 
     torrent.on('done', function (torrent) {
@@ -58,7 +62,7 @@ function downloadModlist (modlist, downloadDirectory) {
     const tline = line.trim()
     if (tline.length === 0) return
     trackedFiles[0]++
-    client.add(util.createTorrentFromHash(tline), { path: downloadDirectory, announce: util.getAnnounceList() }, onTorrenAdded)
+    client.add(util.createTorrentFromHash(tline), { path: downloadDirectory, announce: util.getAnnounceList() }, onTorrentAdded)
   })
 
   setInterval(function () {
