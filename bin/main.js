@@ -126,20 +126,24 @@ function createDatabaseFromRepository (databaseDirectory, callback) {
         counter += list.length
         for (const modFolderName of list) {
           const modFolder = path.join(authorModFolder, modFolderName)
-          createTorrent(modFolder.toString(), (err, torrent) => {
-            if (err) { throw err }
-            const mod = JSON.parse(fs.readFileSync(path.join(modFolder, 'mod.json')))
-            repo.mods.push({
-              Name: mod.name,
-              Description: mod.description,
-              Type: mod.type,
-              SkyrimVersion: mod.versions.map(v => v.gameVersion),
-              Hash: parseTorrent(torrent).infoHash,
-              NSFW: mod.NSFW,
-              Author: author,
-              Permission: mod.permission
+          const modPreviewImage = path.join(authorModFolder, modFolderName.toString() + '.jpg')
+          createTorrent(modPreviewImage.toString(), (err, imageTorrent) => {
+            createTorrent(modFolder.toString(), (err, torrent) => {
+              if (err) { throw err }
+              const mod = JSON.parse(fs.readFileSync(path.join(modFolder, 'mod.json')))
+              repo.mods.push({
+                Name: mod.name,
+                Description: mod.description,
+                Type: mod.type,
+                SkyrimVersion: mod.versions.map(v => v.gameVersion),
+                Hash: parseTorrent(torrent).infoHash,
+                NSFW: mod.NSFW,
+                Author: author,
+                Permission: mod.permission,
+                ImagePreview: parseTorrent(imageTorrent).infoHash
+              })
+              onFinishedDo()
             })
-            onFinishedDo()
           })
         }
       })
@@ -165,6 +169,9 @@ function seedRepository (databaseDirectory) {
 
       getDirectories(authorModFolder, (list) => {
         for (const mod of list) {
+          client.seed(path.join(authorModFolder, mod.toString() + '.jpg'), { announce: util.getAnnounceList() }, (torrent) => {
+            console.log('Author: ' + author + ': seeding preview image: ' + torrent.name + ' ' + torrent.infoHash)
+          })
           client.seed(path.join(authorModFolder, mod).toString(), { announce: util.getAnnounceList() }, (torrent) => {
             console.log('Author: ' + author + ': seeding mod: ' + torrent.name + ' ' + torrent.infoHash)
           })
