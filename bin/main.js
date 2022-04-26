@@ -161,8 +161,10 @@ function seedRepository (databaseDirectory) {
   getDirectories(databaseDirectory, (list) => {
     for (const author of list) {
       const authorModFolder = path.join(databaseDirectory, author, 'mods')
+      const authorModfilesFolder = path.join(databaseDirectory, author, 'modfiles')
       const authorProfileFolder = path.join(databaseDirectory, author, 'profile')
 
+      
       client.seed(authorProfileFolder.toString(), { announce: util.getAnnounceList() }, (torrent) => {
         console.log('Seeding author profile: ' + author + ' ' + torrent.infoHash)
       })
@@ -177,6 +179,24 @@ function seedRepository (databaseDirectory) {
           })
         }
       })
+
+      if(fs.existsSync(authorModfilesFolder)) {
+      getDirectories(authorModfilesFolder, (list) => {
+        for (const modfile of list) {
+          //get all files in the path list
+          fs.readdir(path.join(authorModfilesFolder, modfile).toString(), (err, files) => {
+            if (err) { throw err }
+            for (const file of files) {
+              client.seed(path.join(authorModfilesFolder, modfile, file), { announce: util.getAnnounceList() }, (torrent) => {
+                console.log('Author: ' + author + ': seeding modfile: ' + torrent.name + ' ' + torrent.infoHash)
+              })
+            }
+          });
+          
+        }
+      })
+    }
+
     }
   })
 }
