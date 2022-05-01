@@ -153,7 +153,11 @@ function createDatabaseFromRepository (databaseDirectory, callback) {
 
 function seedRepository (databaseDirectory) {
   createDatabaseFromRepository(databaseDirectory, (repo) => {
+    repo.mods.sort(function(a,b){
+      return a.Name.toUpperCase().localeCompare(b.Name.toUpperCase());
+    });
     const buffer = Buffer.from(JSON.stringify(repo))
+    fs.writeFileSync("SkyrimModAlternatives.json", JSON.stringify(repo));
     client.seed(buffer, { announce: util.getAnnounceList(), name: 'SkyrimModAlternatives.json' }, (torrent) => {
       console.log('seeding: ' + torrent.name + ' ' + torrent.infoHash)
     })
@@ -201,6 +205,59 @@ function seedRepository (databaseDirectory) {
   })
 }
 
+
+function downloadRepository (databaseDirectory) {
+
+  const trackedFiles = new SharedArrayBuffer(2)
+  trackedFiles[0] = 0// downloading
+  trackedFiles[1] = 0// downloaded
+
+  getDirectories(databaseDirectory, function (list) {
+    for (const author of list) {
+      const authorModFolder = path.join(databaseDirectory, author, 'mods')
+      const authorModfilesFolder = path.join(databaseDirectory, author, 'modfiles')
+
+      if(!fs.existsSync(authorModfilesFolder)) fs.mkdirSync(authorModfilesFolder);
+
+      getDirectories(authorModFolder, function (list) {
+        for (const mod of list) {
+          const currentModDownloadFolder = path.join(authorModfilesFolder, mod)
+          const currentModJsonFolder = path.join(authorModFolder, mod)
+          if(!fs.existsSync(currentModDownloadFolder)) fs.mkdirSync(currentModDownloadFolder);
+          
+          const modjson = JSON.parse(fs.readFileSync(path.join(currentModJsonFolder, 'mod.json')))
+          
+          for(const e of modjson.versions)
+          {
+            if(e.hash.length > 10)
+            {
+              trackedFiles[0]++;
+            }
+            console.log("adding ", e.hash);
+            client.add(e.hash,  { path: currentModDownloadFolder, announce: util.getAnnounceList() }, (torrent)=>
+            {
+              torrent.on('done', ()=>{
+                trackedFiles[0]--;
+                trackedFiles[1]++;
+                console.log("Downloaded ", torrent.name);
+              })
+
+            })
+            
+          }
+        }
+      })
+
+    }
+  })
+
+  setInterval(function () {
+    process.stdout.clearLine()
+    process.stdout.write('DOWN: ' + client.downloadSpeed + ' UP: ' + client.uploadSpeed + ' Downloaded: ' + trackedFiles[1] + ' Remaining: ' + trackedFiles[0] + ' Progress: ' + client.progress + '\r')
+  }, 1000)
+}
+
+
 function init () {
   const printHelp = () => {
     console.log('\x1b[34m%s\x1b[0m', 'Skyrim Mod Alternatives CLI')
@@ -210,6 +267,7 @@ function init () {
     console.log('\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ', 'Download a modlist:', 'sma list <modlist.txt> <downloadDirectory>')
     console.log('\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ', 'Seed mods inside a folder:', 'sma seed <directory>')
     console.log('\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ', 'Seed a Repository:', 'sma seed_repository <directory>')
+    console.log('\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ', 'Seed a Repository:', 'sma download_repository <directory>')
     console.log('')
     console.log('\x1b[33m%s\x1b[0m \x1b[32m%s\x1b[0m ', 'Example:', 'sma list modlist.txt mod_downloads')
     exit()
@@ -225,6 +283,7 @@ function init () {
   else if (operationMode === 'list' && param1 !== null) downloadModlist(param1, param2 === null ? process.cwd() : param2)
   else if (operationMode === 'seed' && param1 !== null) seedModFiles(param1)
   else if (operationMode === 'seed_repository' && param1 !== null) seedRepository(param1)
+  else if (operationMode === 'download_repository' && param1 !== null) downloadRepository(param1)
   else printHelp()
 }
 
