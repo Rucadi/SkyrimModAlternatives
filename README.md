@@ -16,19 +16,9 @@ For such mods, no TorrentHash will be uploaded to the database until the Author 
 making them searchable through the database but not downloadable.
 
 
-# Install the command line interface
+# Install the command line interface (Currently outdated)
 - [You must have node installed](https://nodejs.org/en/download/)
 - Do the following command in Windows Terminal: `npm -global i mod-alternatives` or visit the website: https://www.npmjs.com/package/mod-alternatives
 
-# Contribute adding new mods (And seeding them!)
+<img width="373" alt="image" src="https://user-images.githubusercontent.com/6445619/166155287-c394ffcd-bdab-437a-9a7f-8e04cc7ee585.png">
 
-See https://github.com/Rucadi/SkyrimModRepository
-
-```
-This information probes useful to: 
-
-```
-1 - Know the origin of the mod
-2 - Identify the mod
-3 - Create web extensions that allow us to download from an alternative location when looking for mods on a mod website.
-```
